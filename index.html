@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poirot</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="./theme.css">
+</head>
+
+<body x-data="pageData()">
+    <main class="container">
+        <section class="w-65 mx-auto text-center">
+            <img style="width: 200px;" src="./public/poirot.png" alt="Um cachorro detetive farejando">
+            <h1>Poirot</h1>
+            <p>Descubra quem segue qual conta facilmente</p>
+        </section>
+        <form x-on:submit.prevent>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group"><label for="usuarioFonte">De quem procurar</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">@</div>
+                            </div><input x-model="fonte" type="text" id="usuarioFonte" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group"><label for="usuarioAlvo">Quem você quer achar</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">@</div>
+                            </div><input x-model="alvo" type="text" id="usuarioAlvo" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div class="row">
+                <div class="col text-center">
+                    <p>Procurar na lista de:</p>
+                    <div class="custom-control custom-checkbox custom-control-inline">
+                        <input class="custom-control-input" type="checkbox" id="cbSeguidores" value="seguidores"
+                            x-on:change="checarListas" checked>
+                        <label class="custom-control-label" for="cbSeguidores">Seguidores</label>
+                    </div>
+                    <div class="custom-control custom-checkbox custom-control-inline">
+                        <input class="custom-control-input" type="checkbox" id="cbSeguidas" value="seguidas" checked
+                            x-on:change="checarListas">
+                        <label class="custom-control-label" for="cbSeguidas">Contas Seguidas</label>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <button class="btn btn-primary" id="botaoBuscar" type="submit" x-on:click="buscarContas()">Pesquisa
+                    Poirot!</button>
+            </div>
+        </form>
+
+        <section x-show="resposta">
+            <h2>Resultados</h2>
+            <p x-text="fonte"></p>
+            <p x-text="alvo"></p>
+        </section>
+    </main>
+    <script>
+        function pageData() {
+            return {
+                alvo: "",
+                fonte: "",
+                cbSeguidas: true,
+                cbSeguidores: true,
+                resposta: null,
+                buscarContas: async function (event) {
+                    console.log("buscar!");
+                    console.log({ usuarioFonte: this.fonte, usuarioAlvo: this.alvo, checkedSeguidas: this.cbSeguidas, checkedSeguidores: this.cbSeguidores });
+                    const { data } = await axios.get(`https://poirot-api.vercel.app/conexao/${this.fonte}/com/${this.alvo}`);
+                    this.resposta = data;
+                    console.log(data);
+                },
+                checarListas: function (event) {
+                    if (event.target.id === "cbSeguidas") {
+                        this.cbSeguidas = event.target.checked;
+                    }
+                    else {
+                        this.cbSeguidores = event.target.checked;
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.3.5/dist/alpine.min.js" defer></script>
+</body>
+
+</html>
